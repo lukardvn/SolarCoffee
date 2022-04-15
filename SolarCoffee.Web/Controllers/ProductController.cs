@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SolarCoffee.Services.Products;
+using SolarCoffee.Web.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,11 @@ namespace SolarCoffee.Web.Controllers
         {
             _logger.LogInformation("Getting all products");
             var products = _productService.GetAllProducts();
-            return Ok(products);
+
+            var productViewModels = products
+                    .Select(product => ProductMapper.SerializeProductModel(product));
+
+            return Ok(productViewModels);
         }
     }
 }
