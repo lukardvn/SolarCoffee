@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SolarCoffee.Services.Customers;
 using SolarCoffee.Services.Orders;
+using SolarCoffee.Web.Serialization;
 using SolarCoffee.Web.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,25 @@ namespace SolarCoffee.Web.Controllers
 
             var order = OrderMapper.SerializeInvoiceToOrder(invoice);
             order.Customer = _customerService.GetById(invoice.CustomerId);
+            _orderService.GenerateOpenOrder(order);
+            return Ok();
+        }
+
+        [HttpGet("/api/order")]
+        public ActionResult GetOrders()
+        {
+            var orders = _orderService.GetOrders();
+            var orderModels = OrderMapper.SerializeOrdersToViewModels(orders);
+
+            return Ok(orderModels);
+        }
+
+        [HttpPatch("/api/order/complete/{id}")]
+        public ActionResult MarkOrderComplete(int id)
+        {
+            _logger.LogInformation($"Marking order {id} complete");
+
+            _orderService.MarkFulfilled(id);
 
             return Ok();
         }
